@@ -7,6 +7,9 @@ Este projeto é uma implementação educacional de uma **blockchain minimalista*
 - Transações entre carteiras
 - Assinaturas digitais com `ed25519-dalek`
 - Verificação de integridade da cadeia
+- Persistência da blockchain em `blockchain.json`
+- **Carteiras salvas no disco** com geração e recuperação de chaves
+- **Saldo por carteira** com rastreamento de transações
 - Estrutura modular e extensível
 
 ---
@@ -31,10 +34,13 @@ src/
 ├── main.rs          # Entrypoint: inicializa blockchain e transações
 ├── block.rs         # Define a estrutura de bloco e hashing
 ├── blockchain.rs    # Gerencia a cadeia e validação
-└── transaction.rs   # Transações assinadas com chaves públicas
+├── transaction.rs   # Transações assinadas com chaves públicas
+└── wallet.rs        # Geração, persistência e leitura de carteiras
 
-Cargo.toml           # Configurações e dependências
-README.md            # Este arquivo
+wallets/
+├── alice\_wallet.json  # Carteira com chave privada + pública
+├── bob\_wallet.json    # Outra carteira
+├── \*.pub              # Arquivos contendo só a chave pública
 
 ````
 
@@ -55,16 +61,38 @@ cd rustchain
 cargo run
 ```
 
+3. Gere carteiras com:
+
+```bash
+// Exemplo no código:
+let wallet = Wallet::generate();
+wallet.save_to_file("alice");
+```
+
 ---
 
 ## ✅ O que o projeto faz
 
-* Gera três carteiras (chaves públicas)
-* Cria transações entre elas
-* Assina cada transação com a chave privada do remetente
+* Gera carteiras (chaves públicas/privadas) com persistência
+* Cria transações entre carteiras reais
+* Assina transações com a chave privada do remetente
+* Valida assinatura usando a chave pública
 * Agrupa transações em blocos com **prova de trabalho**
-* Adiciona os blocos na blockchain
-* Valida a integridade de toda a cadeia
+* Adiciona os blocos à blockchain
+* Salva a blockchain em disco (`blockchain.json`)
+* Permite verificar o **saldo de qualquer carteira**
+
+---
+
+## 💰 Verificação de Saldo
+
+Você pode verificar o saldo de uma carteira com:
+
+```rust
+let alice_wallet = Wallet::load_from_file("alice").unwrap();
+let saldo = blockchain.get_balance(&alice_wallet.keypair.public);
+println!("Saldo: {}", saldo);
+```
 
 ---
 
@@ -93,6 +121,7 @@ A blockchain só é considerada válida se:
 Block { index: 0, ... }
 Block { index: 1, transactions: [Transaction { from: ..., to: ..., ... }] }
 ✔️ Blockchain válida? true
+💰 Saldo da Alice: 100
 ```
 
 ---
@@ -100,9 +129,11 @@ Block { index: 1, transactions: [Transaction { from: ..., to: ..., ... }] }
 ## 🧠 Próximos Passos
 
 * [ ] Expor API REST com Rocket ou Actix
-* [ ] Adicionar carteira CLI
-* [ ] Persistência da blockchain em JSON
-* [ ] Pool de transações
+* [x] Persistência da blockchain em JSON
+* [x] Carteiras salvas com chave pública/privada
+* [x] Verificação de saldo por carteira
+* [ ] Pool de transações pendentes
+* [ ] Interface de linha de comando (CLI)
 * [ ] Suporte a rede P2P com libp2p
 
 ---
@@ -121,9 +152,8 @@ Desenvolvido por **[Roberto Lima](https://github.com/robertolima-dev)** 🚀✨
 
 ## 💬 **Contato**
 
-- 📧 **Email**: robertolima.izphera@gmail.com
-- 💼 **LinkedIn**: [Roberto Lima](https://www.linkedin.com/in/roberto-lima-01/)
-- 💼 **Website**: [Roberto Lima](https://robertolima-developer.vercel.app/)
-- 💼 **Gravatar**: [Roberto Lima](https://gravatar.com/deliciouslyautomaticf57dc92af0)
+* 📧 **Email**: [robertolima.izphera@gmail.com](mailto:robertolima.izphera@gmail.com)
+* 💼 **LinkedIn**: [Roberto Lima](https://www.linkedin.com/in/roberto-lima-01/)
+* 💼 **Website**: [robertolima-developer.vercel.app](https://robertolima-developer.vercel.app/)
+* 💼 **Gravatar**: [Roberto Lima](https://gravatar.com/deliciouslyautomaticf57dc92af0)
 
----

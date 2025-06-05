@@ -1,10 +1,8 @@
 use ed25519_dalek::{Keypair, PublicKey, Signature, Signer, Verifier};
 use serde::{Deserialize, Serialize};
 
-// Serialização manual para tipos binários (PublicKey, Signature)
-use serde::de::{self, Deserializer, SeqAccess, Visitor};
+use serde::de::{self, Deserializer};
 use serde::ser::{SerializeStruct, Serializer};
-use std::fmt;
 
 #[derive(Debug, Clone)]
 pub struct Transaction {
